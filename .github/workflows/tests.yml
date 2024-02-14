@@ -144,4 +144,7 @@ jobs:
           cat << 'EOF'
           ${{ toJSON(needs) }}
           ${{ toJSON(needs.*.result) }}
+          no failures ${{ !contains(needs.*.result, 'failure') }}
+          no skips ${{ !contains(needs.*.result, 'skipped') }}
+          no both ${{ !(contains(needs.*.result, 'skipped') || contains(needs.*.result, 'failure')) }}
           EOF
