@@ -1,7 +1,6 @@
 name: General tests
 
 'on':
-  - pull_request
   - push
 
 jobs:
@@ -125,9 +124,15 @@ jobs:
     steps:
       - run: |
           echo
+  WillFail:
+    needs: [DownloadArtifactsNonExistent]
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          exit 1
   DownloadArtifacts:
-    needs: [CreateArtifact, WillSkip]
-    if: ${{ !failure() && !cancelled() }}
+    needs: [CreateArtifact, WillSkip, WillFail]
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
@@ -138,3 +143,5 @@ jobs:
           echo needs data
           cat << 'EOF'
           ${{ toJSON(needs) }}
+          ${{ toJSON(needs.*.result) }}
+          EOF
