@@ -1,7 +1,6 @@
 name: General tests
 
 'on':
-  - pull_request
   - push
 
 jobs:
@@ -10,6 +9,43 @@ jobs:
     # https://github.com/orgs/community/discussions/8945
     # https://github.com/actions/runner/issues/2577
     uses: ./.github/workflows/concurrency_call.yml
+    with:
+      build-type: name-one
+  another_call:
+    # This test fails completely
+    # https://github.com/orgs/community/discussions/8945
+    # https://github.com/actions/runner/issues/2577
+    uses: ./.github/workflows/concurrency_call.yml
+    with:
+      build-type: name-two
+
+  call_reusable:
+    # This test fails completely
+    # https://github.com/orgs/community/discussions/8945
+    # https://github.com/actions/runner/issues/2577
+    uses: ./.github/workflows/reusable_test.yml
+    with:
+      test_name: test name
+      batches: 6
+  test_secrets:
+    # This test fails completely
+    # https://github.com/orgs/community/discussions/8945
+    # https://github.com/actions/runner/issues/2577
+    uses: ./.github/workflows/reusable_test.yml
+    with:
+      test_name: test name
+      batches: 1
+    secrets:
+      secret_envs: |
+        ROBOT_CLICKHOUSE_SSH_KEY<<RCSK
+        ${{secrets.TEST_SECRET_CHAIN}}
+        RCSK
+
+  test_job_name:
+    strategy:
+      matrix:
+        job: [1, 2, 3]
+    uses: ./.github/workflows/reusable_non_uniq_job.yml
 
   composite_test:
     runs-on: ubuntu-latest
@@ -57,3 +93,58 @@ jobs:
           git fetch --progress --depth=1 origin ${{ github.base_ref }}
       - name: And finally, diff
         run: git diff --name-only origin/master
+
+  DownloadArtifactsNonExistent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: reports-dir
+  CreateArtifact:
+    needs: [DownloadArtifactsNonExistent]
+    runs-on: ubuntu-latest
+    name: CreateArtifact-${{matrix.id}}
+    strategy:
+      matrix:
+        id: [1, 2]
+    steps:
+      - run: |
+          mkdir -p artifact-${{ matrix.id }}
+          echo '{"id": ${{matrix.id}}}' > \
+            artifact-${{ matrix.id }}/artifact-${{ matrix.id }}.json
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifact-${{ matrix.id }}
+          path: artifact-${{ matrix.id }}/artifact-${{ matrix.id }}.json
+
+  WillSkip:
+    needs: [DownloadArtifactsNonExistent]
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - run: |
+          echo
+  WillFail:
+    needs: [DownloadArtifactsNonExistent]
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          exit 1
+  DownloadArtifacts:
+    needs: [CreateArtifact, WillSkip, WillFail]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: reports-dir
+      - run: |
+          ls -lRa reports-dir
+          echo needs data
+          cat << 'EOF'
+          ${{ toJSON(needs) }}
+          ${{ toJSON(needs.*.result) }}
+          no failures ${{ !contains(needs.*.result, 'failure') }}
+          no skips ${{ !contains(needs.*.result, 'skipped') }}
+          no both ${{ !(contains(needs.*.result, 'skipped') || contains(needs.*.result, 'failure')) }}
+          EOF

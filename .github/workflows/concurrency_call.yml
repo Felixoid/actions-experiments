@@ -4,8 +4,41 @@ concurrency:
 on:  # yamllint disable-line rule:truthy
   workflow_dispatch:
   workflow_call:
+    inputs:
+      build-type:
+        required: true
+        type: string
+      runner-type:
+        default: ubuntu-latest
+        required: false
+        type: string
 jobs:
   CallTest:
-    runs-on: ubuntu-latest
+    env:
+      GITHUB_JOB_OVERRIDDEN: CallTest-${{inputs.build-type}}
+    runs-on: ${{inputs.runner-type}}
+    name: CallTest-${{inputs.build-type}}
     steps:
       - uses: hmarr/debug-action@1201a20fc9d278ddddd5f0f46922d06513892491
+      - run: |
+          echo github.head_ref ${{ github.head_ref }}
+          echo github
+          cat << 'EOF'
+          ${{ toJSON(github) }}
+          EOF
+          echo runner
+          cat << 'EOF'
+          ${{ toJSON(runner) }}
+          EOF
+          echo env
+          cat << 'EOF'
+          ${{ toJSON(env) }}
+          EOF
+          echo job
+          cat << 'EOF'
+          ${{ toJSON(job) }}
+          EOF
+          env | sort
+          echo GITHUB_ENV
+          cat $GITHUB_ENV
+          echo 'GLOBALLY_SET_ENV=abrakadabra' >> $GITHUB_ENV
