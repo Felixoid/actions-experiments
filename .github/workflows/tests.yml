@@ -40,6 +40,15 @@ jobs:
         ROBOT_CLICKHOUSE_SSH_KEY<<RCSK
         ${{secrets.TEST_SECRET_CHAIN}}
         RCSK
+        SECRET_LINE=${{secrets.TEST_SECRET_LINE}}
+        ANOTHER_SECRET_LINE=test some non-secret line
+        SECRET_MULTILINE<<SML
+        another secret
+        multiline
+        SML
+        SECRET_SINGLE_LINE<<SSL
+        single line
+        SSL
 
   test_job_name:
     strategy:
