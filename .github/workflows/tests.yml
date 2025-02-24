@@ -64,6 +64,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Build
         uses: ./.github/actions/test_composite
+      - name: Annotation
+        run: |
+          echo '::notice :: Job report: [url](https://s3.amazonaws.com/clickhouse-test-reports/json.html?PR=76685&sha=e58b6b3d5e4b6762bfe31e58f722198469930abb&name_0=PR&name_1=Config%20Workflow)'
 
   build:
 
