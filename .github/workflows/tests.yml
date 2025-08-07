@@ -109,7 +109,7 @@ jobs:
   DownloadArtifactsNonExistent:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: reports-dir
   CreateArtifact:
@@ -124,7 +124,7 @@ jobs:
           mkdir -p artifact-${{ matrix.id }}
           echo '{"id": ${{matrix.id}}}' > \
             artifact-${{ matrix.id }}/artifact-${{ matrix.id }}.json
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: artifact-${{ matrix.id }}
           path: artifact-${{ matrix.id }}/artifact-${{ matrix.id }}.json
@@ -147,7 +147,7 @@ jobs:
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: reports-dir
       - run: |

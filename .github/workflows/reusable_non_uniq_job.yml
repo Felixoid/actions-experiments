@@ -29,6 +29,10 @@ jobs:
           EOF
           echo env command
           env | sort
+          echo job context
+          cat << 'EOF'
+          ${{ toJSON(job) }}
+          EOF
           echo advanced context
           cat << 'EOF'
           ${{toJSON(steps.context.outputs)}}
