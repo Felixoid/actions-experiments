@@ -19,20 +19,24 @@ jobs:
       - name: Contextx
         run: |
           echo I am here
-          echo env
+          echo ======= env context
           cat << 'EOF'
           ${{ toJSON(env) }}
           EOF
-          echo needs
+          echo ======= needs context
           cat << 'EOF'
           ${{ toJSON(needs) }}
           EOF
-          echo env command
-          env | sort
-          echo job context
+          echo ======= job context
           cat << 'EOF'
           ${{ toJSON(job) }}
           EOF
+          echo ======= runner context
+          cat << 'EOF'
+          ${{ toJSON(runner) }}
+          EOF
+          echo ======= env command
+          env | sort
           echo advanced context
           cat << 'EOF'
           ${{toJSON(steps.context.outputs)}}
