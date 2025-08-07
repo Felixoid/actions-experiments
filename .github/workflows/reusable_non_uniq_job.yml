@@ -27,7 +27,9 @@ jobs:
           cat << 'EOF'
           ${{ toJSON(needs) }}
           EOF
-          advanced context
+          echo env command
+          env | sort
+          echo advanced context
           cat << 'EOF'
           ${{toJSON(steps.context.outputs)}}
           EOF
