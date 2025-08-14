@@ -1,0 +1,41 @@
+---
+name: Unified Workflow
+
+on:
+  # Schedule triggers
+  schedule:
+    # First schedule: Runs every day at 2:00 AM
+    - cron: '7/14 * * * *'
+    # Second schedule: Runs every Monday at 6:00 AM
+    - cron: '0/14 * * * *'
+
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      full:
+        description: 'Run full workflow'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  unified_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run by first schedule
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == '7/14 * * * *' }}
+        run: |
+          echo "This job runs every minute as per the schedule."
+
+      - name: Run by second schedule
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == '0/14 * * * *' }}
+        run: |
+          echo "This job runs every minute as per the strange schedule."
+
+      - name: Run triggered by manual dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "This job runs the ${{ github.event.inputs.full == 'true' && '--full' || '' }} switch"
