@@ -26,12 +26,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run by first schedule
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '7/14 * * * *' }}
+        if: ${{ github.event.schedule == '7/14 * * * *' }}
         run: |
           echo "This job runs every minute as per the schedule."
 
       - name: Run by second schedule
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '0/14 * * * *' }}
+        if: ${{ github.event.schedule == '0/14 * * * *' }}
         run: |
           echo "This job runs every minute as per the strange schedule."
 
@@ -39,3 +39,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "This job runs the ${{ github.event.inputs.full == 'true' && '--full' || '' }} switch"
+
+      - name: Summary
+        run: |
+          echo ${{ ( github.event.schedule == '0/14 * * * *' || github.event.inputs.full == 'true') && 'Running full' || 'Running partial' }}
