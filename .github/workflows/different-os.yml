@@ -17,9 +17,9 @@ jobs:
         run: |
           rm -rf .git
           find . ! -type d -exec touch -t 201212121212 {} +
-          zip -r archive.zip .
+          find . ! -type d -print0 | sort -z | tr '\0' '\n' | zip -XD -0 archive-${{ matrix.os }}.zip --names-stdin
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: archive-${{ matrix.os }}
-          path: archive.zip
+          path: archive-${{ matrix.os }}.zip
