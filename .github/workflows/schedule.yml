@@ -1,5 +1,5 @@
 ---
-name: Unified Workflow
+name: Scheduled or Manual Workflow
 
 on:
   # Schedule triggers
