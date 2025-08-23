@@ -1,0 +1,45 @@
+---
+name: Scheduled or Manual Workflow
+
+on:
+  # Schedule triggers
+  schedule:
+    # First schedule: Runs every 14 minutes
+    - cron: '14 2/4 * * *'
+    # Second schedule: Runs every 14 minutes at the top of the hour
+    - cron: '14 0/4 * * *'
+
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      full:
+        description: 'Run full workflow'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  unified_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run by first schedule
+        if: ${{ github.event.schedule == '14 */4 * * *' }}
+        run: |
+          echo "This job runs every minute as per the schedule."
+
+      - name: Run by second schedule
+        if: ${{ github.event.schedule == '14 2/4 * * *' }}
+        run: |
+          echo "This job runs every minute as per the strange schedule."
+
+      - name: Run triggered by manual dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "This job runs the ${{ github.event.inputs.full == 'true' && '--full' || '' }} switch"
+
+      - name: Summary
+        run: |
+          echo ${{ ( github.event.schedule == '14 2/4 * * *' || github.event.inputs.full == 'true') && 'Running full' || 'Running partial' }}
