@@ -1,0 +1,25 @@
+name: Different OS Example
+
+on:
+  pull_request
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create zip archive
+        run: |
+          rm -rf .git
+          find . ! -type d -exec touch -t 201212121212 {} +
+          find . ! -type d -print0 | sort -z | tr '\0' '\n' | zip -XD -0 archive-${{ matrix.os }}.zip --names-stdin
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive-${{ matrix.os }}
+          path: archive-${{ matrix.os }}.zip
